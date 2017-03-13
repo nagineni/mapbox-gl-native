@@ -2,7 +2,7 @@
 #import "NSBundle+MGLAdditions.h"
 #import "NSProcessInfo+MGLAdditions.h"
 
-#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS
 #import "MGLMapboxEvents.h"
 
 #import "FABKitProtocol.h"
@@ -63,7 +63,7 @@
 
     [MGLAccountManager sharedManager].accessToken = accessToken;
 
-#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS
     dispatch_async(dispatch_get_main_queue(), ^{
         [MGLMapboxEvents setupWithAccessToken:accessToken];
     });
@@ -74,7 +74,7 @@
     return [MGLAccountManager sharedManager].accessToken;
 }
 
-#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS
 
 #pragma mark - Fabric
 
