@@ -38,10 +38,14 @@ set(MBGL_QT_CORE_FILES
     PRIVATE platform/qt/src/timer.cpp
     PRIVATE platform/qt/src/timer_impl.hpp
     PRIVATE platform/qt/src/utf.cpp
-
-    PRIVATE platform/default/unaccent.cpp
-    PRIVATE platform/default/unaccent.hpp
 )
+
+if(NOT WITH_QT_I18N)
+    list(APPEND MBGL_QT_CORE_FILES
+        PRIVATE platform/default/unaccent.cpp
+        PRIVATE platform/default/unaccent.hpp
+    )
+endif()
 
 set(MBGL_QT_FILESOURCE_FILES
     # File source
