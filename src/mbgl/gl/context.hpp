@@ -298,6 +298,8 @@ private:
     std::vector<FramebufferID> abandonedFramebuffers;
     std::vector<RenderbufferID> abandonedRenderbuffers;
 
+    Context& operator=(const Context& other) = delete;
+
 public:
     // For testing and Windows because Qt + ANGLE
     // crashes with VAO enabled.

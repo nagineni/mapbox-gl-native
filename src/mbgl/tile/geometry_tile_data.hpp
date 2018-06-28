@@ -27,14 +27,21 @@ public:
         : std::vector<GeometryCoordinate>(v) {}
     GeometryCoordinates(std::vector<GeometryCoordinate>&& v)
         : std::vector<GeometryCoordinate>(std::move(v)) {}
-
-    using std::vector<GeometryCoordinate>::vector;
+    GeometryCoordinates(std::initializer_list<GeometryCoordinate> && args)
+      : std::vector<GeometryCoordinate>(std::forward<std::initializer_list<GeometryCoordinate>>(args)) {};
 };
 
 class GeometryCollection : public std::vector<GeometryCoordinates> {
 public:
     using coordinate_type = int16_t;
-    using std::vector<GeometryCoordinates>::vector;
+
+    GeometryCollection() = default;
+    GeometryCollection(const std::vector<GeometryCoordinates>& v)
+        : std::vector<GeometryCoordinates>(v) {}
+    GeometryCollection(std::vector<GeometryCoordinates>&& v)
+        : std::vector<GeometryCoordinates>(std::move(v)) {}
+    GeometryCollection(std::initializer_list<GeometryCoordinates> && args)
+      : std::vector<GeometryCoordinates>(std::forward<std::initializer_list<GeometryCoordinates>>(args)) {};
 };
 
 class GeometryTileFeature {
