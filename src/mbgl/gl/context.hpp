@@ -36,7 +36,7 @@ class Debugging;
 class ProgramBinary;
 } // namespace extension
 
-class Context : private util::noncopyable {
+class Context {
 public:
     Context();
     ~Context();
@@ -297,6 +297,9 @@ private:
     std::vector<VertexArrayID> abandonedVertexArrays;
     std::vector<FramebufferID> abandonedFramebuffers;
     std::vector<RenderbufferID> abandonedRenderbuffers;
+
+    Context(const Context&) = delete;
+    Context& operator=(const Context& other) = delete;
 
 public:
     // For testing and Windows because Qt + ANGLE
