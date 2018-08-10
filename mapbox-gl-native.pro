@@ -29,6 +29,10 @@ android|win32|darwin|qnx {
         platform/default/thread.cpp
 }
 
+android|gcc {
+    QMAKE_CFLAGS += -std=c99
+}
+
 darwin {
     LIBS += \
         -framework Foundation
@@ -207,8 +211,10 @@ SOURCES += \
     src/mbgl/storage/resource.cpp \
     src/mbgl/storage/resource_transform.cpp \
     src/mbgl/storage/response.cpp \
+    src/mbgl/style/conversion/color_ramp_property_value.cpp \
     src/mbgl/style/conversion/constant.cpp \
     src/mbgl/style/conversion/coordinate.cpp \
+    src/mbgl/style/conversion/custom_geometry_source_options.cpp \
     src/mbgl/style/conversion/filter.cpp \
     src/mbgl/style/conversion/function.cpp \
     src/mbgl/style/conversion/geojson.cpp \
@@ -230,9 +236,9 @@ SOURCES += \
     src/mbgl/style/expression/coalesce.cpp \
     src/mbgl/style/expression/coercion.cpp \
     src/mbgl/style/expression/collator_expression.cpp \
+    src/mbgl/style/expression/comparison.cpp \
     src/mbgl/style/expression/compound_expression.cpp \
     src/mbgl/style/expression/dsl.cpp \
-    src/mbgl/style/expression/equals.cpp \
     src/mbgl/style/expression/expression.cpp \
     src/mbgl/style/expression/find_zoom_curve.cpp \
     src/mbgl/style/expression/get_covering_stops.cpp \
@@ -408,8 +414,8 @@ INCLUDEPATH += \
     deps/earcut/0.12.4/include \
     deps/geojson/0.4.2 \
     deps/geojson/0.4.2/include \
-    deps/geojsonvt/6.5.1 \
-    deps/geojsonvt/6.5.1/include \
+    deps/geojsonvt/6.6.0 \
+    deps/geojsonvt/6.6.0/include \
     deps/geometry/0.9.3 \
     deps/geometry/0.9.3/include \
     deps/kdbush/0.1.1-1 \

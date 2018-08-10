@@ -16,12 +16,8 @@ namespace conversion {
 
 template <class T>
 struct Converter<PropertyValue<T>> {
-    optional<PropertyValue<T>> operator()(const Convertible& value, Error& error, bool convertTokens = false) const {
+    optional<PropertyValue<T>> operator()(const Convertible& value, Error& error, bool allowDataExpressions, bool convertTokens) const {
         using namespace mbgl::style::expression;
-
-        // Only icon-image and text-field support tokens, and they are both data-driven.
-        assert(!convertTokens);
-        (void)convertTokens;
 
         if (isUndefined(value)) {
             return PropertyValue<T>();
@@ -33,39 +29,50 @@ struct Converter<PropertyValue<T>> {
             ParsingContext ctx(valueTypeToExpressionType<T>());
             ParseResult parsed = ctx.parseLayerPropertyExpression(value);
             if (!parsed) {
-                error = { ctx.getCombinedErrors() };
-                return {};
+                error.message = ctx.getCombinedErrors();
+                return nullopt;
             }
             expression = PropertyExpression<T>(std::move(*parsed));
         } else if (isObject(value)) {
-            expression = convertFunctionToExpression<T>(value, error, false);
+            expression = convertFunctionToExpression<T>(value, error, convertTokens);
         } else {
             optional<T> constant = convert<T>(value, error);
             if (!constant) {
-                return {};
+                return nullopt;
             }
-            return { *constant };
+            return convertTokens ? maybeConvertTokens(*constant) : PropertyValue<T>(*constant);
         }
 
         if (!expression) {
-            return {};
-        } else if (!(*expression).isFeatureConstant()) {
-            error = { "data expressions not supported" };
-            return {};
-        } else if (!(*expression).isZoomConstant()) {
+            return nullopt;
+        } else if (!allowDataExpressions && !(*expression).isFeatureConstant()) {
+            error.message = "data expressions not supported";
+            return nullopt;
+        } else if (!(*expression).isFeatureConstant() || !(*expression).isZoomConstant()) {
             return { std::move(*expression) };
         } else if ((*expression).getExpression().getKind() == Kind::Literal) {
             optional<T> constant = fromExpressionValue<T>(
                 static_cast<const Literal&>((*expression).getExpression()).getValue());
             if (!constant) {
-                return {};
+                return nullopt;
             }
             return PropertyValue<T>(*constant);
         } else {
             assert(false);
-            error = { "expected a literal expression" };
-            return {};
+            error.message = "expected a literal expression";
+            return nullopt;
         }
+    }
+
+    template <class S>
+    PropertyValue<T> maybeConvertTokens(const S& t) const {
+        return PropertyValue<T>(t);
+    };
+
+    PropertyValue<T> maybeConvertTokens(const std::string& t) const {
+        return hasTokens(t)
+            ? PropertyValue<T>(PropertyExpression<T>(convertTokenStringToExpression(t)))
+            : PropertyValue<T>(t);
     }
 };
 

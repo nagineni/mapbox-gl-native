@@ -12,8 +12,8 @@ SymbolBucket::SymbolBucket(style::SymbolLayoutProperties::PossiblyEvaluated layo
                            const std::map<std::string, std::pair<
                                style::IconPaintProperties::PossiblyEvaluated,
                                style::TextPaintProperties::PossiblyEvaluated>>& layerPaintProperties,
-                           const style::DataDrivenPropertyValue<float>& textSize,
-                           const style::DataDrivenPropertyValue<float>& iconSize,
+                           const style::PropertyValue<float>& textSize,
+                           const style::PropertyValue<float>& iconSize,
                            float zoom,
                            bool sdfIcons_,
                            bool iconsNeedLinear_,
@@ -29,7 +29,7 @@ SymbolBucket::SymbolBucket(style::SymbolLayoutProperties::PossiblyEvaluated layo
       symbolInstances(std::move(symbolInstances_)),
       textSizeBinder(SymbolSizeBinder::create(zoom, textSize, TextSize::defaultValue())),
       iconSizeBinder(SymbolSizeBinder::create(zoom, iconSize, IconSize::defaultValue())) {
-    
+
     for (const auto& pair : layerPaintProperties) {
         paintPropertyBinders.emplace(
             std::piecewise_construct,
@@ -49,7 +49,7 @@ void SymbolBucket::upload(gl::Context& context) {
         } else if (!sortUploaded) {
             context.updateIndexBuffer(*text.indexBuffer, std::move(text.triangles));
         }
-        
+
         if (!dynamicUploaded) {
             text.dynamicVertexBuffer = context.createVertexBuffer(std::move(text.dynamicVertices), gl::BufferUsage::StreamDraw);
         }
@@ -94,7 +94,7 @@ void SymbolBucket::upload(gl::Context& context) {
             }
         }
     }
-    
+
     if (hasCollisionCircleData()) {
         if (!staticUploaded) {
             collisionCircle.indexBuffer = context.createIndexBuffer(std::move(collisionCircle.triangles));
@@ -115,7 +115,7 @@ void SymbolBucket::upload(gl::Context& context) {
             pair.second.second.upload(context);
         }
     }
-    
+
     uploaded = true;
     staticUploaded = true;
     placementChangesUploaded = true;
@@ -164,7 +164,7 @@ void SymbolBucket::sortFeatures(const float angle) {
     if (sortedAngle && *sortedAngle == angle) {
         return;
     }
-    
+
     sortedAngle = angle;
 
     // The current approach to sorting doesn't sort across segments so don't try.
@@ -172,7 +172,7 @@ void SymbolBucket::sortFeatures(const float angle) {
     if (text.segments.size() > 1 || icon.segments.size() > 1) {
         return;
     }
-    
+
     sortUploaded = false;
     uploaded = false;
 
@@ -186,15 +186,15 @@ void SymbolBucket::sortFeatures(const float angle) {
     for (size_t i = 0; i < symbolInstances.size(); i++) {
         symbolInstanceIndexes.push_back(i);
     }
-    
+
     const float sin = std::sin(angle);
     const float cos = std::cos(angle);
 
     std::sort(symbolInstanceIndexes.begin(), symbolInstanceIndexes.end(), [sin, cos, this](size_t &aIndex, size_t &bIndex) {
         const SymbolInstance& a = symbolInstances[aIndex];
         const SymbolInstance& b = symbolInstances[bIndex];
-        const int32_t aRotated = static_cast<int32_t>(std::lround(sin * a.anchor.point.x + cos * a.anchor.point.y));
-        const int32_t bRotated = static_cast<int32_t>(std::lround(sin * b.anchor.point.x + cos * b.anchor.point.y));
+        const int32_t aRotated = static_cast<int32_t>(::lround(sin * a.anchor.point.x + cos * a.anchor.point.y));
+        const int32_t bRotated = static_cast<int32_t>(::lround(sin * b.anchor.point.x + cos * b.anchor.point.y));
         return aRotated != bRotated ?
             aRotated < bRotated :
             a.dataFeatureIndex > b.dataFeatureIndex;
@@ -205,7 +205,7 @@ void SymbolBucket::sortFeatures(const float angle) {
 
     featureSortOrder = std::make_unique<std::vector<size_t>>();
     featureSortOrder->reserve(symbolInstanceIndexes.size());
-    
+
     for (auto i : symbolInstanceIndexes) {
         const SymbolInstance& symbolInstance = symbolInstances[i];
         featureSortOrder->push_back(symbolInstance.dataFeatureIndex);
